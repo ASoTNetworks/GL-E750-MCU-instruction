@@ -220,6 +220,32 @@ static int mcu_get_modem_info(json_object * modem)
 	return -1;		
 }
 
+static int mcu_get_modem_signal(json_object * out)
+{
+	int modem_signal=atoi(getShellCommandReturnDynamic("uqmi -d /dev/cdc-wdm0 --get-signal-info | jsonfilter -e '@[\"rssi\"]'"));	
+	if(modem_signal){
+		if(modem_signal > -55){
+			gjson_add_string(out, "signal", "4");
+		}
+		if((modem_signal < -55) && (modem_signal > -66)){
+			gjson_add_string(out, "signal", "3");
+		}
+		if((modem_signal < -66) && (modem_signal > -77)){
+			gjson_add_string(out, "signal", "2");
+		}
+		if((modem_signal < -77) && (modem_signal > -88)){
+			gjson_add_string(out, "signal", "1");
+		}
+		else if(modem_signal < -88){
+			gjson_add_string(out, "signal", "0");
+		}
+		return 0;
+	}
+	else{
+		return -1;
+	}
+}
+
 static int get_router_info(json_object * out)
 {
 	struct uci_context *ctx = guci2_init();
@@ -652,6 +678,7 @@ static void event_sig_handler(int num)
 	json_object *out = json_object_new_object();	
 	get_ap_info(out);
 	mcu_get_modem_info(out);
+	mcu_get_modem_signal(out);
 	get_router_info(out);
 	get_vpn_info(out);
 	get_clients_info(out);
