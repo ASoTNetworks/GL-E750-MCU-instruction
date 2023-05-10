@@ -224,20 +224,20 @@ static int mcu_get_modem_signal(json_object * out)
 {
 	int modem_signal=atoi(getShellCommandReturnDynamic("uqmi -d /dev/cdc-wdm0 --get-signal-info | jsonfilter -e '@[\"rssi\"]'"));	
 	if(modem_signal){
-		if(modem_signal > -55){
-			gjson_add_string(out, "signal", "4");
+		if(modem_signal < -88){
+			gjson_add_string(out, "signal", "0");
 		}
-		else if((modem_signal < -55) && (modem_signal > -66)){
-			gjson_add_string(out, "signal", "3");
-		}
-		else if((modem_signal < -66) && (modem_signal > -77)){
-			gjson_add_string(out, "signal", "2");
-		}
-		else if((modem_signal < -77) && (modem_signal > -88)){
+		else if(modem_signal < -77){
 			gjson_add_string(out, "signal", "1");
 		}
-		else if(modem_signal < -88){
-			gjson_add_string(out, "signal", "0");
+		else if(modem_signal < -66){
+			gjson_add_string(out, "signal", "2");
+		}
+		else if(modem_signal < -55){
+			gjson_add_string(out, "signal", "3");
+		}
+		else if(modem_signal > -55){
+			gjson_add_string(out, "signal", "4");
 		}
 		return 0;
 	}
